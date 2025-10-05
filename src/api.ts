@@ -1,5 +1,4 @@
 import {faker} from "@faker-js/faker";
-import {unstable_cache} from "next/cache";
 
 export interface BlogPost {
   id: string;
@@ -76,6 +75,7 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   console.info(
     `[API] Fetching blog posts${category ? ` for category: ${category}` : ""} (250ms delay)`,
   );
+
   await delay(250);
 
   const postCount = 12;
@@ -92,6 +92,7 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
 
 export async function getCategories(): Promise<Category[]> {
   console.info("[API] Fetching categories (250ms delay)");
+
   await delay(250);
 
   return CATEGORIES.map((category) => ({
@@ -102,6 +103,7 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   console.info(`[API] Fetching blog post with slug: ${slug} (250ms delay)`);
+
   await delay(250);
 
   const hashCode = slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -110,17 +112,3 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
   return generateBlogPost(hashCode);
 }
-
-export const getCachedBlogPosts = unstable_cache(
-  async (category?: string) => getBlogPosts(category),
-  ["blog-posts"],
-  {
-    revalidate: 60,
-    tags: ["blog-posts"],
-  },
-);
-
-export const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
-  revalidate: 300,
-  tags: ["categories"],
-});

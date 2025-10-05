@@ -1,35 +1,40 @@
-// Force static generation for this page
-// In Next.js 15, we explicitly set this to ensure static generation
 export const dynamic = "force-static";
 
-export const revalidate = 3600; // Revalidate every hour
-
-import type {BlogPost} from "@/api";
+export const revalidate = 3600;
 
 import Link from "next/link";
+import {unstable_cache} from "next/cache";
 
-import {getCachedBlogPosts, getCachedCategories} from "@/api";
+import {type BlogPost, getBlogPosts, getCategories} from "@/api";
 
-// Helper function to get featured posts (statically at build time)
+const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
+  revalidate: 300,
+  tags: ["categories"],
+});
+
+const getCachedBlogPosts = unstable_cache(
+  async (category?: string) => getBlogPosts(category),
+  ["blog-posts"],
+  {
+    revalidate: 60,
+    tags: ["blog-posts"],
+  },
+);
+
 async function getFeaturedPosts(): Promise<BlogPost[]> {
   const allPosts = await getCachedBlogPosts();
 
-  // Return top 3 most recent posts as featured
   return allPosts.slice(0, 3);
 }
 
-// Helper function to get popular categories
 async function getPopularCategories() {
   const categories = await getCachedCategories();
 
-  // Sort by post count and return top 3
   return categories.sort((a, b) => b.postCount - a.postCount).slice(0, 3);
 }
 
-// Stats are generated at build time
 async function getBlogStats() {
-  const posts = await getCachedBlogPosts();
-  const categories = await getCachedCategories();
+  const [posts, categories] = await Promise.all([getCachedBlogPosts(), getCachedCategories()]);
 
   return {
     totalPosts: posts.length,
@@ -39,7 +44,6 @@ async function getBlogStats() {
 }
 
 export default async function HomePage() {
-  // All data is fetched at build time due to force-static
   const [featuredPosts, popularCategories, stats] = await Promise.all([
     getFeaturedPosts(),
     getPopularCategories(),
@@ -48,7 +52,6 @@ export default async function HomePage() {
 
   return (
     <main className="space-y-16">
-      {/* Hero Section */}
       <section className="bg-card rounded-xl border px-6 py-16 text-center">
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
           Welcome to Our Blog
@@ -72,7 +75,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="bg-card rounded-lg border p-6 text-center">
           <div className="text-3xl font-bold">{stats.totalPosts}</div>
@@ -88,7 +90,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Posts Section */}
       <section>
         <h2 className="mb-8 text-3xl font-bold tracking-tight">Featured Posts</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -124,7 +125,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Popular Categories Section */}
       <section>
         <h2 className="mb-8 text-3xl font-bold tracking-tight">Popular Categories</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -145,7 +145,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="bg-muted/50 rounded-xl border px-6 py-12 text-center">
         <h2 className="mb-4 text-3xl font-bold tracking-tight">Stay Updated</h2>
         <p className="text-muted-foreground mb-8">Get the latest posts delivered to your inbox</p>
