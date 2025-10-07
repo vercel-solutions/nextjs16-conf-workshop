@@ -42,15 +42,11 @@ const CATEGORIES = [
   {id: "5", name: "Marketing", slug: "marketing", description: "Digital marketing and growth"},
 ] as const;
 
-faker.seed(123);
-
 async function delay(ms: number = 250) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function generateBlogPost(index: number, category?: string): BlogPost {
-  faker.seed(123 + index);
-
+function generateBlogPost(category?: string): BlogPost {
   const selectedCategory = category ?? faker.helpers.arrayElement(CATEGORIES).slug;
   const categoryName = CATEGORIES.find((c) => c.slug === selectedCategory)?.name ?? "Technology";
 
@@ -82,7 +78,7 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   const posts: BlogPost[] = [];
 
   for (let i = 0; i < postCount; i++) {
-    posts.push(generateBlogPost(i, category));
+    posts.push(generateBlogPost(category));
   }
 
   return posts.sort(
@@ -106,9 +102,5 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
   await delay(250);
 
-  const hashCode = slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-  faker.seed(hashCode);
-
-  return generateBlogPost(hashCode);
+  return generateBlogPost();
 }

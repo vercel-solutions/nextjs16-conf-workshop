@@ -149,7 +149,7 @@ export async function getCachedBlogPosts(category?: string) {
 }
 ```
 
-### Task 4: Implement Partial Prerendering (PPR)
+### Task 4: Implement Partial Prerendering (PPR) @TODO
 
 **Goal:** Enable PPR for better performance.
 
@@ -225,15 +225,14 @@ export async function GET(request: NextRequest) {
 - [ ] API calls are cached (check console logs)
 - [ ] Category filtering works
 - [ ] Cache invalidation works via `/api/revalidate?tag=...` route
-- [ ] PPR is working (check Network tab)
-- [ ] Page loads faster
 
 ## Bonus Tasks
 
 - Create `/blog/[slug]/page.tsx` to display individual blog posts using `"use cache"`.
-- Implement cache invalidation for individual blog posts and categories.
+- Implement cache invalidation for individual blog posts and categories. @TODO
 - Add a footer showing server time using the `connection` function.
 - Deploy the application and verify everything works.
+- Implement tag that includes information for cacheLife or cacheTag @TODO
 
 ## Resources
 
@@ -247,3 +246,5 @@ export async function GET(request: NextRequest) {
 ---
 
 **Happy coding!** 🚀
+
+@TODO: Unconsistent number of blog posts and posts shown
