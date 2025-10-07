@@ -224,10 +224,10 @@ export async function GET(request: NextRequest) {
 ## Bonus Tasks
 
 - Create `/blog/[slug]/page.tsx` to display individual blog posts using `"use cache"`.
-- Implement cache invalidation for individual blog posts and categories. @TODO
+- Implement cache invalidation for individual blog posts and categories.
 - Add a footer showing server time using the `connection` function.
+- Implement tags with the blog post id on featured posts.
 - Deploy the application and verify everything works.
-- Implement tag that includes information for cacheLife or cacheTag @TODO
 
 ## Resources
 
@@ -241,5 +241,3 @@ export async function GET(request: NextRequest) {
 ---
 
 **Happy coding!** 🚀
-
-@TODO: Unconsistent number of blog posts and posts shown
