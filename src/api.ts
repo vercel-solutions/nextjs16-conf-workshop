@@ -1,71 +1,82 @@
 import {faker} from "@faker-js/faker";
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  publishedAt: string;
-  readTime: number;
-  imageUrl: string;
-}
+import {delay} from "./utils";
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  postCount: number;
-}
+export type Category = ReturnType<typeof generateData>["categories"][number];
 
-const CATEGORIES = [
-  {id: "1", name: "Technology", slug: "technology", description: "Latest in tech and innovation"},
-  {id: "2", name: "Design", slug: "design", description: "UI/UX and creative design"},
-  {
-    id: "3",
-    name: "Development",
-    slug: "development",
-    description: "Software development and programming",
-  },
-  {
-    id: "4",
-    name: "Business",
-    slug: "business",
-    description: "Business strategy and entrepreneurship",
-  },
-  {id: "5", name: "Marketing", slug: "marketing", description: "Digital marketing and growth"},
-] as const;
+export type BlogPost = ReturnType<typeof generateData>["blogPosts"][number];
 
-async function delay(ms: number = 250) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+function generateData(postCount: number = 50) {
+  faker.seed(123);
 
-function generateBlogPost(category?: string): BlogPost {
-  const selectedCategory = category ?? faker.helpers.arrayElement(CATEGORIES).slug;
-  const categoryName = CATEGORIES.find((c) => c.slug === selectedCategory)?.name ?? "Technology";
-
-  return {
-    id: faker.string.uuid(),
-    title: faker.helpers.fake(`{{company.catchPhrase}} in ${categoryName}`),
-    slug: faker.helpers.slugify(faker.company.catchPhrase()).toLowerCase(),
-    excerpt: faker.lorem.paragraph(2),
-    content: faker.lorem.paragraphs(5, "\n\n"),
-    category: selectedCategory,
-    author: {
-      name: faker.person.fullName(),
-      avatar: faker.image.avatar(),
+  const categories = [
+    {
+      id: faker.string.uuid(),
+      name: "Design",
+      slug: "design",
+      description: faker.company.catchPhrase(),
+      postCount: 0,
     },
-    publishedAt: faker.date.recent({days: 30}).toISOString(),
-    readTime: faker.number.int({min: 3, max: 12}),
-    imageUrl: faker.image.urlPicsumPhotos({width: 800, height: 400}),
-  };
+    {
+      id: faker.string.uuid(),
+      name: "Engineering",
+      slug: "engineering",
+      description: faker.company.catchPhrase(),
+      postCount: 0,
+    },
+    {
+      id: faker.string.uuid(),
+      name: "Product",
+      slug: "product",
+      description: faker.company.catchPhrase(),
+      postCount: 0,
+    },
+    {
+      id: faker.string.uuid(),
+      name: "Security",
+      slug: "security",
+      description: faker.company.catchPhrase(),
+      postCount: 0,
+    },
+    {
+      id: faker.string.uuid(),
+      name: "DevOps",
+      slug: "devops",
+      description: faker.company.catchPhrase(),
+      postCount: 0,
+    },
+  ];
+
+  const blogPosts = [];
+
+  for (let i = 0; i < postCount; i++) {
+    const selectedCategory = faker.helpers.arrayElement(categories);
+
+    blogPosts.push({
+      id: faker.string.uuid(),
+      title: faker.helpers.fake(`{{company.catchPhrase}} in ${selectedCategory.name}`),
+      slug: faker.helpers.slugify(faker.company.catchPhrase()).toLowerCase(),
+      excerpt: faker.lorem.paragraph(2),
+      content: faker.lorem.paragraphs(5, "\n\n"),
+      category: selectedCategory.slug,
+      author: {
+        name: faker.person.fullName(),
+        avatar: faker.image.avatar(),
+      },
+      publishedAt: faker.date.recent({days: 30}).toISOString(),
+      readTime: faker.number.int({min: 3, max: 12}),
+      imageUrl: faker.image.urlPicsumPhotos({width: 800, height: 400}),
+    });
+
+    selectedCategory.postCount++;
+  }
+
+  blogPosts.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+  return {categories, blogPosts};
 }
+
+const {categories: CATEGORIES, blogPosts: BLOG_POSTS} = generateData(50);
 
 export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   console.info(
@@ -74,27 +85,19 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
 
   await delay(250);
 
-  const postCount = 12;
-  const posts: BlogPost[] = [];
-
-  for (let i = 0; i < postCount; i++) {
-    posts.push(generateBlogPost(category));
+  if (category) {
+    return BLOG_POSTS.filter((post) => post.category === category);
   }
 
-  return posts.sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-  );
+  return BLOG_POSTS;
 }
 
 export async function getCategories(): Promise<Category[]> {
   console.info("[API] Fetching categories (250ms delay)");
 
-  const allPosts = await getBlogPosts();
+  await delay(250);
 
-  return CATEGORIES.map((category) => ({
-    ...category,
-    postCount: allPosts.filter((post) => post.category === category.slug).length,
-  }));
+  return CATEGORIES;
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -102,5 +105,5 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
   await delay(250);
 
-  return generateBlogPost();
+  return BLOG_POSTS.find((post) => post.slug === slug) ?? null;
 }

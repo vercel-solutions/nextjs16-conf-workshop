@@ -25,15 +25,15 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 <nav className="flex items-center space-x-6 text-sm font-medium">
                   <Link
                     className="text-muted-foreground hover:text-foreground transition-colors"
-                    href="/blog"
+                    href="/"
                   >
-                    Blog
+                    Home
                   </Link>
                   <Link
                     className="text-muted-foreground hover:text-foreground transition-colors"
-                    href="/about"
+                    href="/blog"
                   >
-                    About
+                    Blog
                   </Link>
                 </nav>
               </div>

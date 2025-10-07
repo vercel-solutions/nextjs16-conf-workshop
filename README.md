@@ -149,37 +149,31 @@ export async function getCachedBlogPosts(category?: string) {
 }
 ```
 
-### Task 4: Implement Partial Prerendering (PPR) @TODO
+### Task 4: Implement Partial Prerendering (PPR)
 
-**Goal:** Enable PPR for better performance.
+**Goal:** Enable PPR for showing dynamic content on the featured posts section.
 
-1. Remove `export const dynamic = 'force-dynamic'` from `src/app/blog/page.tsx`
-
-2. Add Suspense boundaries:
+1. Add Suspense boundaries:
 ```tsx
 import { Suspense } from 'react';
 import BlogPostsSkeleton from './components/blog-posts/skeleton';
 
-export default async function BlogPage({ searchParams }) {
-  const params = await searchParams;
+async function FeaturedPosts() {
+  const posts = await getFeaturedPosts();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <header>
-        <h1 className="text-4xl font-bold mb-4">Blog Posts</h1>
-        <p className="text-muted-foreground">
-          Discover our latest articles and insights
-        </p>
-      </header>
+    <BlogPosts posts={featuredPosts} />
+  );
+}
 
-      <Suspense fallback={<div>Loading categories...</div>}>
-        <CategorySection selectedCategory={params.category} />
-      </Suspense>
-
-      <Suspense fallback={<BlogPostsSkeleton />}>
-        <BlogPostsSection category={params.category} />
-      </Suspense>
-    </div>
+export default async function HomePage() {
+  ...
+  return (
+    ...
+    <Suspense fallback={<BlogPostsSkeleton />}>
+      <FeaturedPosts />
+    </Suspense>
+    ...
   );
 }
 ```
@@ -223,6 +217,7 @@ export async function GET(request: NextRequest) {
 
 - [ ] Application runs without errors
 - [ ] API calls are cached (check console logs)
+- [ ] Featured posts section shows dynamic content
 - [ ] Category filtering works
 - [ ] Cache invalidation works via `/api/revalidate?tag=...` route
 

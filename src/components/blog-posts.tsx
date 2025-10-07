@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 
-import {BlogPost} from "@/api";
+import type {BlogPost} from "@/api";
 
 export default function BlogPosts({posts}: {posts: BlogPost[]}) {
   if (posts.length === 0) {
@@ -18,10 +19,11 @@ export default function BlogPosts({posts}: {posts: BlogPost[]}) {
           <Link className="block" href={`/blog/${post.slug}`}>
             <div className="bg-card overflow-hidden rounded-lg border">
               <div className="bg-muted relative aspect-video overflow-hidden">
-                <img
+                <Image
+                  fill
                   alt={post.title}
                   className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   src={post.imageUrl}
                 />
               </div>
@@ -38,10 +40,12 @@ export default function BlogPosts({posts}: {posts: BlogPost[]}) {
                   <p className="text-muted-foreground line-clamp-2 text-sm">{post.excerpt}</p>
                 </div>
                 <div className="flex items-center gap-3 pt-2">
-                  <img
+                  <Image
                     alt={post.author.name}
                     className="h-8 w-8 rounded-full border"
+                    height={32}
                     src={post.author.avatar}
+                    width={32}
                   />
                   <div className="text-sm">
                     <p className="font-medium">{post.author.name}</p>

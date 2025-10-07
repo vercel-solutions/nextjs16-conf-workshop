@@ -1,8 +1,6 @@
-"use client";
-
 import Link from "next/link";
 
-import {Category} from "@/api";
+import type {Category} from "@/api";
 
 export default function CategoryFilter({
   categories,
@@ -21,7 +19,7 @@ export default function CategoryFilter({
         }`}
         href="/blog"
       >
-        All Posts
+        All Posts ({categories.reduce((sum, cat) => sum + cat.postCount, 0)})
       </Link>
       {categories.map((category) => (
         <Link
@@ -33,8 +31,7 @@ export default function CategoryFilter({
           }`}
           href={`/blog?category=${category.slug}`}
         >
-          {category.name}
-          <span className="ml-1 opacity-70">({category.postCount})</span>
+          {category.name} ({category.postCount})
         </Link>
       ))}
     </div>

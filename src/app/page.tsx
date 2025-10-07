@@ -1,13 +1,13 @@
-export const dynamic = "force-static";
-
-export const revalidate = 3600;
-
 import Link from "next/link";
 import {unstable_cache} from "next/cache";
 
-import {type BlogPost, getBlogPosts, getCategories} from "@/api";
+import {getBlogPosts, getCategories} from "@/api";
 
 import BlogPosts from "@/components/blog-posts";
+
+export const dynamic = "force-static";
+
+export const revalidate = 3600;
 
 const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
   revalidate: 300,
@@ -23,16 +23,10 @@ const getCachedBlogPosts = unstable_cache(
   },
 );
 
-async function getFeaturedPosts(): Promise<BlogPost[]> {
+async function getFeaturedPosts() {
   const allPosts = await getCachedBlogPosts();
 
   return allPosts.slice(0, 3);
-}
-
-async function getPopularCategories() {
-  const categories = await getCachedCategories();
-
-  return categories.sort((a, b) => b.postCount - a.postCount).slice(0, 3);
 }
 
 async function getBlogStats() {
@@ -46,11 +40,7 @@ async function getBlogStats() {
 }
 
 export default async function HomePage() {
-  const [featuredPosts, popularCategories, stats] = await Promise.all([
-    getFeaturedPosts(),
-    getPopularCategories(),
-    getBlogStats(),
-  ]);
+  const [featuredPosts, stats] = await Promise.all([getFeaturedPosts(), getBlogStats()]);
 
   return (
     <main className="space-y-16">
@@ -59,22 +49,14 @@ export default async function HomePage() {
           Welcome to Our Blog
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-lg sm:text-xl">
-          Discover insights on technology, design, and development
+          Explore our collection of articles across various topics
         </p>
-        <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
-          <Link
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium transition-colors"
-            href="/blog"
-          >
-            Browse All Posts
-          </Link>
-          <Link
-            className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-10 items-center justify-center rounded-md border px-8 text-sm font-medium transition-colors"
-            href="/blog?category=technology"
-          >
-            Tech Articles
-          </Link>
-        </div>
+        <Link
+          className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium transition-colors"
+          href="/blog"
+        >
+          Browse All Posts
+        </Link>
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -95,47 +77,6 @@ export default async function HomePage() {
       <section>
         <h2 className="mb-8 text-3xl font-bold tracking-tight">Featured Posts</h2>
         <BlogPosts posts={featuredPosts} />
-      </section>
-
-      <section>
-        <h2 className="mb-8 text-3xl font-bold tracking-tight">Popular Categories</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {popularCategories.map((category) => (
-            <Link
-              key={category.id}
-              className="group bg-card hover:bg-muted/50 block rounded-lg border p-6 transition-colors"
-              href={`/blog?category=${category.slug}`}
-            >
-              <h3 className="mb-2 text-xl font-semibold">{category.name}</h3>
-              <p className="text-muted-foreground mb-4 text-sm">{category.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{category.postCount} posts</span>
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-muted/50 rounded-xl border px-6 py-12 text-center">
-        <h2 className="mb-4 text-3xl font-bold tracking-tight">Stay Updated</h2>
-        <p className="text-muted-foreground mb-8">Get the latest posts delivered to your inbox</p>
-        <div className="mx-auto flex max-w-md flex-col gap-2 sm:flex-row">
-          <input
-            disabled
-            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-10 flex-1 rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Enter your email"
-            type="email"
-          />
-          <button
-            disabled
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
-            type="submit"
-          >
-            Subscribe
-          </button>
-        </div>
-        <p className="text-muted-foreground mt-4 text-xs">(Newsletter feature coming soon)</p>
       </section>
     </main>
   );
