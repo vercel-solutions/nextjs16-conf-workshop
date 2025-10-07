@@ -46,7 +46,7 @@ Check the console to see API calls being logged.
 const nextConfig = {
   experimental: {
     cacheComponents: true,
-    ppr: true, // Partial Prerendering
+    ppr: true,
   },
 };
 ```
@@ -101,7 +101,7 @@ export async function getCachedCategories() {
     revalidate: 300,
   });
 
-return getCategories();
+  return getCategories();
 }
 ```
 
@@ -124,12 +124,12 @@ const nextConfig = {
   },
   cacheLife: {
     blogPosts: {
-      stale: 60,      // 60 seconds
-      revalidate: 120, // 120 seconds
+      stale: 60,
+      revalidate: 120,
     },
     categories: {
-      stale: 300,     // 5 minutes
-      revalidate: 600, // 10 minutes
+      stale: 300,
+      revalidate: 600,
     },
   },
 };
@@ -137,18 +137,13 @@ const nextConfig = {
 
 2. Use cache profiles and tags:
 ```typescript
-import {cacheLife} from 'next/cache';
+import {cacheLife, cacheTag} from 'next/cache';
 
 export async function getCachedBlogPosts(category?: string) {
   "use cache";
 
   cacheLife('blogPosts');
-
-  if (category) {
-    cacheTag(`blog-posts-${category}`);
-  } else {
-    cacheTag('blog-posts-all');
-  }
+  cacheTag('blog-posts');
 
   return getBlogPosts(category);
 }
@@ -189,113 +184,56 @@ export default async function BlogPage({ searchParams }) {
 }
 ```
 
-### Task 5: Create Cache Components
+### Task 5: Add Cache Invalidation
 
-**Goal:** Make components that manage their own caching.
+**Goal:** Implement on-demand cache invalidation via route handler.
 
-```tsx
-import {cacheTag, cacheLife} from 'next/cache';
+Create a revalidation route handler at `src/app/api/revalidate/route.ts`:
 
-export async function CachedCategories({ selectedCategory }: { selectedCategory?: string }) {
-  "use cache";
-
-  cacheLife('categories');
-  cacheTag('categories');
-
-  const categories = await getCategories();
-
-  return (
-    <CategoryFilter
-      categories={categories}
-      selectedCategory={selectedCategory}
-    />
-  );
-}
-```
-
-### Task 6: Add Cache Invalidation
-
-**Goal:** Implement on-demand cache invalidation.
-
-1. Create server action:
 ```typescript
-'use server';
-
 import { revalidateTag } from 'next/cache';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function invalidateBlogCache(category?: string) {
-  if (category) {
-    revalidateTag(`blog-posts-${category}`);
-  } else {
-    revalidateTag('blog-posts-all');
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const tag = searchParams.get('tag');
+
+  if (!tag) {
+    return NextResponse.json(
+      { error: 'Missing tag parameter' },
+      { status: 400 }
+    );
   }
+
+  revalidateTag(tag);
+
+  return NextResponse.json({
+    revalidated: true,
+    tag,
+    now: Date.now()
+  });
 }
 ```
 
-2. Add refresh button:
-```tsx
-'use client';
-
-import { invalidateBlogCache } from '@/app/actions';
-
-export function RefreshButton({ category }: { category?: string }) {
-  return (
-    <button
-      onClick={() => invalidateBlogCache(category)}
-      className="px-4 py-2 bg-blue-600 text-white rounded"
-    >
-      Refresh Posts
-    </button>
-  );
-}
-```
+**Usage:**
+- Visit `/api/revalidate?tag=blog-posts` to revalidate all blog posts
+- Visit `/api/revalidate?tag=categories` to revalidate categories
 
 ## Verification Checklist
 
 - [ ] Application runs without errors
 - [ ] API calls are cached (check console logs)
 - [ ] Category filtering works
-- [ ] Cache invalidation works with refresh button
+- [ ] Cache invalidation works via `/api/revalidate?tag=...` route
 - [ ] PPR is working (check Network tab)
 - [ ] Page loads faster
 
-## Bonus Challenges
+## Bonus Tasks
 
-### Challenge 1: Migrate Homepage
-The homepage uses `force-static` with local cache functions. Migrate it to use the new caching system.
-
-### Challenge 2: Individual Blog Posts
-Create `/blog/[slug]/page.tsx` with:
-- Dynamic routing
-- `generateStaticParams` for static generation
-- Related posts section
-
-## Stretch Goals
-
-### Dynamic Footer with Connection API
-Add a footer showing server time using the `connection` function:
-
-```typescript
-import { connection } from 'next/server';
-
-export async function DynamicFooter() {
-  await connection(); // Opts out of static rendering
-
-  const currentTime = new Date().toLocaleString();
-
-  return (
-    <footer>
-      <p>Server time: {currentTime}</p>
-    </footer>
-  );
-}
-```
-
-### More Stretch Goals
-- Real-time view counter
-- User preference persistence
-- A/B testing
-- Geolocation-based content
+- Create `/blog/[slug]/page.tsx` to display individual blog posts using `"use cache"`.
+- Implement cache invalidation for individual blog posts and categories.
+- Add a footer showing server time using the `connection` function.
+- Deploy the application and verify everything works.
 
 ## Resources
 

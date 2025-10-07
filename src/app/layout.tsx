@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "ACME Blog",
   description: "A modern blog platform built with Next.js",
-  metadataBase: new URL("https://acme-blog.vercel.app"),
+  metadataBase: new URL("https://acme-blog-16.vercel.app"),
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

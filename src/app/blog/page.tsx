@@ -2,8 +2,8 @@ import {unstable_cache} from "next/cache";
 
 import {getBlogPosts, getCategories} from "@/api";
 
-import BlogPosts from "./components/blog-posts";
-import CategoryFilter from "./components/category-filter";
+import BlogPosts from "@/components/blog-posts";
+import CategoryFilter from "@/components/category-filter";
 
 export const dynamic = "force-dynamic";
 

@@ -7,6 +7,8 @@ import {unstable_cache} from "next/cache";
 
 import {type BlogPost, getBlogPosts, getCategories} from "@/api";
 
+import BlogPosts from "@/components/blog-posts";
+
 const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
   revalidate: 300,
   tags: ["categories"],
@@ -92,37 +94,7 @@ export default async function HomePage() {
 
       <section>
         <h2 className="mb-8 text-3xl font-bold tracking-tight">Featured Posts</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredPosts.map((post) => (
-            <article
-              key={post.id}
-              className="group bg-card hover:bg-muted/50 rounded-lg border transition-colors"
-            >
-              <Link href={`/blog/${post.slug}`}>
-                <div className="bg-muted relative aspect-video overflow-hidden rounded-t-lg">
-                  <img
-                    alt={post.title}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    src={post.imageUrl}
-                  />
-                  <div className="bg-primary text-primary-foreground absolute top-3 right-3 rounded-md px-2 py-1 text-xs font-semibold">
-                    Featured
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="mb-3 flex items-center gap-2 text-xs">
-                    <span className="bg-muted rounded-md px-2 py-1 font-medium">
-                      {post.category}
-                    </span>
-                    <span className="text-muted-foreground">{post.readTime} min read</span>
-                  </div>
-                  <h3 className="mb-2 line-clamp-2 text-lg font-semibold">{post.title}</h3>
-                  <p className="text-muted-foreground line-clamp-2 text-sm">{post.excerpt}</p>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
+        <BlogPosts posts={featuredPosts} />
       </section>
 
       <section>

@@ -93,11 +93,11 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
 export async function getCategories(): Promise<Category[]> {
   console.info("[API] Fetching categories (250ms delay)");
 
-  await delay(250);
+  const allPosts = await getBlogPosts();
 
   return CATEGORIES.map((category) => ({
     ...category,
-    postCount: faker.number.int({min: 5, max: 20}),
+    postCount: allPosts.filter((post) => post.category === category.slug).length,
   }));
 }
 
