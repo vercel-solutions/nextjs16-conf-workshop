@@ -1,46 +1,25 @@
 import Link from "next/link";
-import {unstable_cache} from "next/cache";
 
-import {getBlogPosts, getCategories} from "@/api";
+import {getBlogPosts, getCategories, getFeaturedBlogPosts} from "@/api";
 
 import BlogPosts from "@/components/blog-posts";
 
 export const dynamic = "force-static";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
-const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
-  revalidate: 300,
-  tags: ["categories"],
-});
-
-const getCachedBlogPosts = unstable_cache(
-  async (category?: string) => getBlogPosts(category),
-  ["blog-posts"],
-  {
-    revalidate: 60,
-    tags: ["blog-posts"],
-  },
-);
-
-async function getFeaturedPosts() {
-  const allPosts = await getCachedBlogPosts();
-
-  return allPosts.slice(0, 3);
-}
-
-async function getBlogStats() {
-  const [posts, categories] = await Promise.all([getCachedBlogPosts(), getCachedCategories()]);
+const getBlogStats = async () => {
+  const [posts, categories] = await Promise.all([getBlogPosts(), getCategories()]);
 
   return {
     totalPosts: posts.length,
     totalCategories: categories.length,
     avgReadTime: Math.round(posts.reduce((acc, post) => acc + post.readTime, 0) / posts.length),
   };
-}
+};
 
 export default async function HomePage() {
-  const [featuredPosts, stats] = await Promise.all([getFeaturedPosts(), getBlogStats()]);
+  const [featuredPosts, stats] = await Promise.all([getFeaturedBlogPosts(), getBlogStats()]);
 
   return (
     <main className="space-y-16">

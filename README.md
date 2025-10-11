@@ -23,10 +23,10 @@ pnpm dev
 ## Current Implementation (Next.js 15)
 
 The blog application currently uses:
-- `unstable_cache` for caching in each page component
+- `unstable_cache` for caching static data used in dynamic pages
 - `export const dynamic = 'force-dynamic'` for the blog page
 - `export const dynamic = 'force-static'` for the homepage
-- 250ms simulated API delays for testing
+- Mocked data with simulated API delays
 
 Check the console to see API calls being logged.
 
@@ -34,7 +34,7 @@ Check the console to see API calls being logged.
 
 ### Task 1: Enable Next.js 16 Features
 
-**Goal:** Update to Next.js 16 and enable new caching features.
+Update to Next.js 16 and enable new caching features.
 
 1. Update `package.json`:
 ```json
@@ -44,189 +44,40 @@ Check the console to see API calls being logged.
 2. Configure `next.config.ts`:
 ```typescript
 const nextConfig = {
-  experimental: {
-    cacheComponents: true,
-    ppr: true,
-  },
+  cacheComponents: true,
 };
 ```
 
 3. Run `pnpm install`
 
-### Task 2: Migrate to "use cache" Directive
+### Task 2: Home page
 
-**Goal:** Replace `unstable_cache` with the new `"use cache"` directive.
+Migrate home page to use [`"use cache"`](https://nextjs.org/docs/app/api-reference/directives/use-cache) directive. Remember to keep the original [revalidation time](https://nextjs.org/docs/app/api-reference/functions/cacheLife) of 60 seconds.
 
-Current code in pages:
-```typescript
-const getCachedCategories = unstable_cache(
-  async () => getCategories(),
-  ["categories"],
-  {
-    revalidate: 300,
-    tags: ["categories"],
-  }
-);
+### Task 3: Blog page
 
-const getCachedBlogPosts = unstable_cache(
-  async (category?: string) => getBlogPosts(category),
-  ["blog-posts"],
-  {
-    revalidate: 60,
-    tags: ["blog-posts"],
-  },
-);
-```
+Migrate the blog page to use `"use cache"`. Currently the entire page is dynamic because results are dynamic. Find a way of making the categories and layout static while keeping the posts dynamic.
 
-Migrate to:
-```typescript
-import {cacheTag, cacheLife} from 'next/cache';
+### Task 4: Blog post page
 
-export async function getCachedBlogPosts(category?: string) {
-  "use cache";
+Create a fully static blog post page that uses [`cacheTag`](https://nextjs.org/docs/app/api-reference/functions/cacheTag) to set a tag with the blog post id.
 
-  cacheTag('blog-posts');
-  cacheLife({
-    revalidate: 60,
-  });
+### Task 5: Revalidate the cache
 
-  return getBlogPosts(category);
-}
+Create a secured route to revalidate the cache of at least the blog post page. Use [`revalidateTag`](https://nextjs.org/docs/app/api-reference/functions/revalidateTag).
 
-export async function getCachedCategories() {
-  "use cache";
+### Task 6: Add a dynamic featured posts section to blog post page
 
-  cacheTag('categories');
-  cacheLife({
-    revalidate: 300,
-  });
+Add a dynamic section to the end of the blog post page to show the featured posts.
 
-  return getCategories();
-}
-```
+### Task 7: Implement loading shells
 
-**Note:**
-- The `"use cache"` directive must be the first line in the function body
-- Both `cacheTag` and `cacheLife` are imported with the `unstable_` prefix from 'next/cache'
-- Tags allow for targeted cache invalidation using `revalidateTag()`
-- `cacheLife` can accept inline configuration objects or reference named profiles from `next.config.ts`
-
-### Task 3: Configure Cache Profiles
-
-**Goal:** Set up cache lifetimes and tags.
-
-1. Add cache profiles to `next.config.ts`:
-```typescript
-const nextConfig = {
-  experimental: {
-    cacheComponents: true,
-    ppr: true,
-  },
-  cacheLife: {
-    blogPosts: {
-      stale: 60,
-      revalidate: 120,
-    },
-    categories: {
-      stale: 300,
-      revalidate: 600,
-    },
-  },
-};
-```
-
-2. Use cache profiles and tags:
-```typescript
-import {cacheLife, cacheTag} from 'next/cache';
-
-export async function getCachedBlogPosts(category?: string) {
-  "use cache";
-
-  cacheLife('blogPosts');
-  cacheTag('blog-posts');
-
-  return getBlogPosts(category);
-}
-```
-
-### Task 4: Implement Partial Prerendering (PPR)
-
-**Goal:** Enable PPR for showing dynamic content on the featured posts section.
-
-1. Add Suspense boundaries:
-```tsx
-import { Suspense } from 'react';
-import BlogPostsSkeleton from './components/blog-posts/skeleton';
-
-async function FeaturedPosts() {
-  const posts = await getFeaturedPosts();
-
-  return (
-    <BlogPosts posts={featuredPosts} />
-  );
-}
-
-export default async function HomePage() {
-  ...
-  return (
-    ...
-    <Suspense fallback={<BlogPostsSkeleton />}>
-      <FeaturedPosts />
-    </Suspense>
-    ...
-  );
-}
-```
-
-### Task 5: Add Cache Invalidation
-
-**Goal:** Implement on-demand cache invalidation via route handler.
-
-Create a revalidation route handler at `src/app/api/revalidate/route.ts`:
-
-```typescript
-import { revalidateTag } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const tag = searchParams.get('tag');
-
-  if (!tag) {
-    return NextResponse.json(
-      { error: 'Missing tag parameter' },
-      { status: 400 }
-    );
-  }
-
-  revalidateTag(tag);
-
-  return NextResponse.json({
-    revalidated: true,
-    tag,
-    now: Date.now()
-  });
-}
-```
-
-**Usage:**
-- Visit `/api/revalidate?tag=blog-posts` to revalidate all blog posts
-- Visit `/api/revalidate?tag=categories` to revalidate categories
-
-## Verification Checklist
-
-- [ ] Application runs without errors
-- [ ] API calls are cached (check console logs)
-- [ ] Featured posts section shows dynamic content
-- [ ] Category filtering works
-- [ ] Cache invalidation works via `/api/revalidate?tag=...` route
+Create meaningful loading shells for the dynamic parts of the app, at least for the /blog page.
 
 ## Bonus Tasks
 
-- Create `/blog/[slug]/page.tsx` to display individual blog posts using `"use cache"`.
-- Implement cache invalidation for individual blog posts and categories.
-- Add a footer showing server time using the `connection` function.
-- Implement tags with the blog post id on featured posts.
+- Show the active category in the `category-filter` component.
+- Create a custom cache profile in `next.config.ts` and use it.
 - Deploy the application and verify everything works.
 
 ## Resources
@@ -235,8 +86,6 @@ export async function GET(request: NextRequest) {
 - ["use cache" Directive](https://nextjs.org/docs/app/api-reference/directives/use-cache)
 - [cacheLife Function](https://nextjs.org/docs/app/api-reference/functions/cacheLife)
 - [cacheTag Function](https://nextjs.org/docs/app/api-reference/functions/cacheTag)
-- [Partial Prerendering](https://nextjs.org/docs/app/getting-started/partial-prerendering)
-- [Connection Function](https://nextjs.org/docs/app/api-reference/functions/connection)
 
 ---
 

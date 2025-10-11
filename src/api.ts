@@ -92,6 +92,14 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   return BLOG_POSTS;
 }
 
+export async function getFeaturedBlogPosts(): Promise<BlogPost[]> {
+  console.info("[API] Fetching featured posts (250ms delay)");
+
+  await delay(1500);
+
+  return BLOG_POSTS.toSorted(() => Math.random() - 0.5).slice(0, 3);
+}
+
 export async function getCategories(): Promise<Category[]> {
   console.info("[API] Fetching categories (250ms delay)");
 

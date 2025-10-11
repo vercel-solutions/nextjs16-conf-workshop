@@ -7,31 +7,18 @@ import CategoryFilter from "@/components/category-filter";
 
 export const dynamic = "force-dynamic";
 
-const getCachedCategories = unstable_cache(async () => getCategories(), ["categories"], {
-  revalidate: 300,
+const getCachedCategories = unstable_cache(async () => getCategories(), [], {
+  revalidate: 3600,
   tags: ["categories"],
 });
-
-const getCachedBlogPosts = unstable_cache(
-  async (category?: string) => getBlogPosts(category),
-  ["blog-posts"],
-  {
-    revalidate: 60,
-    tags: ["blog-posts"],
-  },
-);
 
 export default async function BlogPage({
   searchParams,
 }: {
   searchParams: Promise<{category?: string}>;
 }) {
-  const {category: selectedCategory} = await searchParams;
-
-  const [categories, posts] = await Promise.all([
-    getCachedCategories(),
-    getCachedBlogPosts(selectedCategory),
-  ]);
+  const {category} = await searchParams;
+  const [categories, posts] = await Promise.all([getCachedCategories(), getBlogPosts(category)]);
 
   return (
     <div className="container mx-auto flex flex-col gap-8 px-4 py-8">
@@ -40,7 +27,7 @@ export default async function BlogPage({
         <p className="text-muted-foreground">Discover our latest articles and insights</p>
       </header>
 
-      <CategoryFilter categories={categories} selectedCategory={selectedCategory} />
+      <CategoryFilter categories={categories} />
 
       <BlogPosts posts={posts} />
     </div>
