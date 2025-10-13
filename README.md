@@ -70,10 +70,6 @@ Create a secured route to revalidate the cache of at least the blog post page. U
 
 Add a dynamic section to the end of the blog post page to show the featured posts.
 
-### Task 7: Implement loading shells
-
-Create meaningful loading shells for the dynamic parts of the app, at least for the /blog page.
-
 ## Bonus Tasks
 
 - Show the active category in the `category-filter` component.

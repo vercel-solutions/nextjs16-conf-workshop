@@ -51,11 +51,12 @@ function generateData(postCount: number = 50) {
 
   for (let i = 0; i < postCount; i++) {
     const selectedCategory = faker.helpers.arrayElement(categories);
+    const title = faker.company.catchPhrase();
 
     blogPosts.push({
       id: faker.string.uuid(),
-      title: faker.helpers.fake(`{{company.catchPhrase}} in ${selectedCategory.name}`),
-      slug: faker.helpers.slugify(faker.company.catchPhrase()).toLowerCase(),
+      title: `${title} in ${selectedCategory.name}`,
+      slug: faker.helpers.slugify(title).toLowerCase(),
       excerpt: faker.lorem.paragraph(2),
       content: faker.lorem.paragraphs(5, "\n\n"),
       category: selectedCategory.slug,
