@@ -1,9 +1,9 @@
 import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
+  reactCompiler: true,
   experimental: {
-    reactCompiler: true,
-    cacheComponents: false,
+    cacheComponents: true,
   },
   logging: {
     fetches: {
