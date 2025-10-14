@@ -15,9 +15,9 @@ export default function BlogPosts({posts}: {posts: BlogPost[]}) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((post) => (
-        <article key={post.id} className="group relative flex flex-col space-y-2">
-          <Link className="block" href={`/blog/${post.slug}`}>
-            <div className="bg-card overflow-hidden rounded-lg border">
+        <article key={post.id} className="group relative flex h-full flex-col">
+          <Link className="flex h-full flex-col" href={`/blog/${post.slug}`}>
+            <div className="bg-card flex h-full flex-col overflow-hidden rounded-lg border">
               <div className="bg-muted relative aspect-video overflow-hidden">
                 <Image
                   fill
@@ -27,19 +27,19 @@ export default function BlogPosts({posts}: {posts: BlogPost[]}) {
                   src={post.imageUrl}
                 />
               </div>
-              <div className="space-y-4 p-6">
+              <div className="flex flex-1 flex-col gap-4 p-6">
                 <div className="flex items-center gap-2 text-xs">
                   <span className="text-primary font-medium">{post.category}</span>
                   <span className="text-muted-foreground">•</span>
                   <span className="text-muted-foreground">{post.readTime} min read</span>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-1 flex-col gap-2">
                   <h2 className="group-hover:text-primary line-clamp-2 text-xl font-semibold tracking-tight transition-colors">
                     {post.title}
                   </h2>
                   <p className="text-muted-foreground line-clamp-2 text-sm">{post.excerpt}</p>
                 </div>
-                <div className="flex items-center gap-3 pt-2">
+                <div className="mt-auto flex items-center gap-3 pt-2">
                   <Image
                     alt={post.author.name}
                     className="h-8 w-8 rounded-full border"
