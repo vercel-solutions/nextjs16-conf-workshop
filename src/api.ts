@@ -93,12 +93,16 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   return BLOG_POSTS;
 }
 
-export async function getFeaturedBlogPosts(): Promise<BlogPost[]> {
-  console.info("[API] Fetching featured posts (250ms delay)");
+export async function getFeaturedBlogPosts(category?: string): Promise<BlogPost[]> {
+  console.info(
+    `[API] Fetching featured posts${category ? ` for category: ${category}` : ""} (250ms delay)`,
+  );
 
   await delay(1500);
 
-  return BLOG_POSTS.toSorted(() => Math.random() - 0.5).slice(0, 3);
+  const posts = category ? BLOG_POSTS.filter((post) => post.category === category) : BLOG_POSTS;
+
+  return posts.toSorted(() => Math.random() - 0.5).slice(0, 3);
 }
 
 export async function getCategories(): Promise<Category[]> {
