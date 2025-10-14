@@ -78,7 +78,7 @@ Add a dynamic section to the end of the blog post page to show the featured post
 
 ## Resources
 
-- [Next.js 16 Documentation](https://nextjs.org/docs)
+- [cacheComponents](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)
 - ["use cache" Directive](https://nextjs.org/docs/app/api-reference/directives/use-cache)
 - [cacheLife Function](https://nextjs.org/docs/app/api-reference/functions/cacheLife)
 - [cacheTag Function](https://nextjs.org/docs/app/api-reference/functions/cacheTag)
