@@ -17,7 +17,7 @@ pnpm install
 # Run development server
 pnpm dev
 
-# Visit http://localhost:3000/blog
+# Visit http://localhost:3000
 ```
 
 ## Current Implementation (Next.js 15)
