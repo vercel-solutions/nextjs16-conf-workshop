@@ -1,10 +1,7 @@
 import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    reactCompiler: true,
-    cacheComponents: false,
-  },
+  reactCompiler: true,
   logging: {
     fetches: {
       fullUrl: true,
