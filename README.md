@@ -64,7 +64,7 @@ Create a fully static blog post page that uses [`cacheTag`](https://nextjs.org/d
 
 ### Task 5: Revalidate the cache
 
-Create a secured route to revalidate the cache of at least the blog post page. Use [`revalidateTag`](https://nextjs.org/docs/app/api-reference/functions/revalidateTag).
+Create a secured route to revalidate the cache of a given tag using [`revalidateTag`](https://nextjs.org/docs/app/api-reference/functions/revalidateTag).
 
 ### Task 6: Add a dynamic featured posts section to blog post page
 
