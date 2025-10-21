@@ -1,6 +1,6 @@
-# Next.js 16 Caching Migration Workshop
+# Next.js 16 + Cache Components Migration Workshop
 
-Welcome to the Next.js 16 workshop! Learn how to migrate from Next.js 15 to Next.js 16's new caching features.
+Welcome to the Next.js 16 + Cache Components workshop! Learn how to migrate from Next.js 15 to Next.js 16's new caching features with cache components.
 
 ## Prerequisites
 
