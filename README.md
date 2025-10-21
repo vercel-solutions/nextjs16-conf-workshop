@@ -23,7 +23,6 @@ pnpm dev
 ## Current Implementation (Next.js 15)
 
 The blog application currently uses:
-- `unstable_cache` for caching static data used in dynamic pages
 - `export const dynamic = 'force-dynamic'` for the blog page
 - `export const dynamic = 'force-static'` for the homepage
 - Mocked data with simulated API delays
